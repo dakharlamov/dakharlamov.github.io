@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+</head>
+
+
+<body>
+
+    <canvas id="kochviewer" width="1280" height="720" style="border:1px solid #000000;">
+    </canvas>
+
+    <br>
+    <input id="level" type="range" min="0" max="7" value="2">
+
+    <input id="angleA" type="range" min="0" max="360" value="60">
+
+    <input id="angleB" type="range" min="0" max="360" value="60">
+
+    <div id="ruleset">
+    </div>
+
+    <div id="console">
+    </div>
+
+    <script type="text/javascript">
+        class Vector {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+            add(other){
+                return new Vector(this.x + other.x, this.y + other.y);
+            }
+
+            rotate(theta){
+                let newX = (this.x * Math.cos(theta)) - (this.y * Math.sin(theta));
+                let newY = (this.x * Math.sin(theta)) + (this.y * Math.cos(theta));
+                return new Vector(newX, newY);
+            }
+
+        }
+
+        class Rule {
+            constructor(character, rotation){
+              this.character = character;
+              this.rotation = rotation;
+            }
+
+        }
+
+
+
+        var c = document.getElementById("kochviewer");
+        var ctx = c.getContext("2d");
+
+        var from = new Vector(0,0);
+        var to = new Vector(200,200);
+
+        let rules = new Array();
+        rules['f'] = 0;
+        rules['g'] = 0;
+        rules['+'] = -1.0472 * 2;
+        rules['-'] = 1.0472 * 2;
+
+
+        function drawUI(){
+
+          for (var key in rules) {
+            $("#ruleset").append(key + "&nbsp<input type='text' id='" + key + "' value='" + rules[key] + "'><br>");
+          }
+        }
+        drawUI();
+
+        function drawLine(from, to, context) {
+            context.beginPath();
+            context.moveTo(from.x, from.y);
+            context.lineTo(to.x, to.y);
+            context.stroke();
+        }
+
+
+        function drawKoch(origin, length, sentence){
+
+            var instructions = sentence.split("");
+
+            var currentPos = origin;
+            var forward = new Vector(0, length);
+
+            instructions.forEach(function(instruction){
+
+                var rule = rules[instruction];
+
+                if(rule == 0){
+                  drawLine(currentPos, currentPos.add(forward), ctx);
+                  currentPos = currentPos.add(forward);
+                }else{
+                  forward = forward.rotate(rule);
+                }
+            });
+
+        }
+
+        function generateSentence(start, iters){
+
+            var finalSentence = start;
+
+            if(iters == 0){
+                return finalSentence;
+            }
+
+            var startParse = start.split("");
+
+            for(var i = 0; i < startParse.length; i++){
+
+                if(startParse[i] == "f"){
+                    startParse[i] = "f-g+f+g-f";
+                }
+
+                if(startParse[i] == "g"){
+                    startParse[i] = "gg";
+                }
+
+            }
+
+            return generateSentence(startParse.join(""), iters - 1);
+
+        }
+
+        let alphabet = [];
+        alphabet[0] = "f";
+        alphabet[1] = "g";
+        alphabet[2] = "+";
+        alphabet[3] = "-";
+
+        let startingPoint = "f--f--f";
+
+        let ruleSet = "f>f+f--f+f";
+
+        drawKoch(new Vector(600,250), ((400 / 5) * (5 * Math.pow(4/9, 2))), generateSentence(startingPoint, 2));
+
+        $("#level").mousemove(function(){
+
+            var numIters = $("#level").val();
+
+            ctx.clearRect(0, 0, c.width, c.height);
+
+            let mainSentence = generateSentence(startingPoint, numIters);
+
+            let size = (400 / 5) * (5 * Math.pow(4/9, numIters));
+
+            drawKoch(new Vector(600,250), size, mainSentence);
+
+            $("#console").empty();
+            $("#console").append(mainSentence);
+
+        })
+
+
+    </script>
+</body>
+
+
+</html>
