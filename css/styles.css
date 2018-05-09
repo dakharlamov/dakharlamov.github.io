@@ -5,6 +5,10 @@
 
 }
 
+.clearfix{
+  display: inline-block;
+}
+
 .arow {
   display: flex;
 }

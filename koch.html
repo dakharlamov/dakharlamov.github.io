@@ -9,7 +9,7 @@
 
 <body>
 
-    <canvas id="kochviewer" width="1280" height="720" style="border:1px solid #000000;">
+    <canvas id="kochviewer" width="640" height="320" style="border:1px solid #000000;">
     </canvas>
 
     <br>
@@ -151,7 +151,7 @@
 
             let size = (400 / 5) * (5 * Math.pow(4/9, numIters));
 
-            drawKoch(new Vector(600,250), size, mainSentence);
+            drawKoch(new Vector(200,50), size, mainSentence);
 
             $("#console").empty();
             $("#console").append(mainSentence);
